@@ -30,13 +30,19 @@ import type { Property } from "@/lib/propiedades/types";
  */
 const NUMERO_CONFIGURADO = process.env.NEXT_PUBLIC_WHATSAPP_NUMERO?.trim();
 
-/** Provisorio, para poder probar. Reemplazar por el real antes de difundir. */
-const NUMERO_DE_PRUEBA = "59899123456";
+/**
+ * Número del asesor que atiende las consultas: 598 + 97 776 777.
+ *
+ * Está acá y no sólo en la variable de entorno para que el sitio funcione sin
+ * configurar nada. La variable, si existe, manda: sirve para apuntar a otro
+ * número sin tocar el código.
+ */
+const NUMERO_POR_DEFECTO = "59897776777";
 
 export const NUMERO_ASESOR =
   NUMERO_CONFIGURADO && NUMERO_CONFIGURADO.length > 0
     ? NUMERO_CONFIGURADO
-    : NUMERO_DE_PRUEBA;
+    : NUMERO_POR_DEFECTO;
 
 function enlace(mensaje: string): string {
   return `https://wa.me/${NUMERO_ASESOR}?text=${encodeURIComponent(mensaje)}`;

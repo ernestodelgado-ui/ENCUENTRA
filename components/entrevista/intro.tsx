@@ -62,12 +62,11 @@ export function Intro({ onStart }: { onStart: () => void }) {
 
         <div className="flex flex-1 flex-col justify-center py-10 sm:py-14">
           <div className="max-w-xl">
-            <h1 className="font-display text-[2rem] font-bold leading-[1.12] tracking-tight text-foreground sm:text-5xl">
-              Primero entendemos qué buscás.{" "}
-              <span className="block">
-                Después salimos a{" "}
-                <span className="text-coral">encontrarlo.</span>
-              </span>
+            {/* La frase de marca vive en la Home. Acá, a un toque de distancia,
+                repetirla sonaba a eco: quien llega ya la leyó. Este titular
+                retoma el hilo en lugar de repetirlo. */}
+            <h1 className="font-display text-[2.25rem] font-bold leading-[1.1] tracking-tight text-foreground sm:text-6xl">
+              Empecemos por <span className="text-coral">vos.</span>
             </h1>
 
             <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
