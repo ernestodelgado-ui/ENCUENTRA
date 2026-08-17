@@ -1,14 +1,16 @@
 {
   "_comentario": "Generado por scripts/publicar.mjs. Lista lo que el script puede borrar de la raíz en la próxima publicación. No editar a mano.",
-  "publicadoEn": "2026-08-17T21:15:26.751Z",
+  "publicadoEn": "2026-08-17T21:19:46.294Z",
   "entradas": [
     "404",
     "404.html",
+    "apple-icon.png",
     "buscar",
     "favicon.ico",
     "hero-1600.jpg",
     "hero-1600.webp",
     "hero-800.webp",
+    "icon.svg",
     "index.html",
     "index.txt",
     "propiedad",

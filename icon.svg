@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="encuentra.">
+  <!--
+    Ícono de encuentra.
+
+    El logo del sitio es un cuadrado con borde y una casa de trazo fino adentro.
+    A 16 píxeles ese dibujo se empasta, así que acá va invertido: cuadrado coral
+    macizo con la casa en blanco. Mantiene la identidad (coral, casa, esquinas
+    redondeadas) y se distingue en una pestaña.
+
+    El coral es el mismo de la marca, #ff665f, definido en app/globals.css.
+  -->
+  <rect width="32" height="32" rx="7.5" fill="#ff665f"/>
+  <path
+    d="M16 5.4 4.9 14.9a1.3 1.3 0 0 0-.45.98V25.6A1.4 1.4 0 0 0 5.85 27h20.3a1.4 1.4 0 0 0 1.4-1.4V15.88a1.3 1.3 0 0 0-.45-.98z"
+    fill="#ffffff"
+  />
+  <rect x="13.1" y="19.2" width="5.8" height="7.8" rx="1.2" fill="#ff665f"/>
+</svg>
