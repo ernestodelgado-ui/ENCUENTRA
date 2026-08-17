@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fafaf7;
+  --foreground: #111827;
+  --muted-foreground: #5b6270;
+  --card: #ffffff;
+  --border: #e8e9ed;
+
+  --coral: #ff665f;
+  --coral-dark: #e8544d;
+  --orange: #ff9d62;
+  --violet: #635bff;
+  --violet-dark: #4f47e0;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+
+  --color-coral: var(--coral);
+  --color-coral-dark: var(--coral-dark);
+  --color-orange: var(--orange);
+  --color-violet: var(--violet);
+  --color-violet-dark: var(--violet-dark);
+
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "DM Sans Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 1.25rem;
+  --radius-pill: 999px;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Visible, consistent focus ring for keyboard navigation across the app */
+:focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------------------------------------------------------------------------
+   Barra de presupuesto con dos controles (desde / hasta).
+
+   Son dos <input type="range"> nativos superpuestos sobre una misma pista, para
+   no perder el manejo por teclado ni la semántica de slider que ya traen. La
+   pista de cada input es transparente y no captura el puntero
+   (`pointer-events: none`); sólo los thumbs lo hacen, así el de abajo sigue
+   siendo agarrable. Los thumbs se estilan con pseudo-elementos propios de cada
+   motor, que Tailwind no puede alcanzar — por eso viven acá.
+--------------------------------------------------------------------------- */
+
+.rango {
+  position: relative;
+  height: 2.5rem;
+}
+
+.rango-pista,
+.rango-relleno {
+  position: absolute;
+  top: 50%;
+  height: 4px;
+  border-radius: 999px;
+  transform: translateY(-50%);
+}
+
+.rango-pista {
+  left: 0;
+  right: 0;
+  background: var(--border);
+}
+
+.rango-relleno {
+  background: var(--coral);
+}
+
+.rango-input {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.5rem;
+  margin: 0;
+  transform: translateY(-50%);
+  background: transparent;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.rango-input:focus {
+  outline: none;
+}
+
+.rango-input::-webkit-slider-runnable-track {
+  height: 4px;
+  background: transparent;
+}
+
+.rango-input::-moz-range-track {
+  height: 4px;
+  background: transparent;
+}
+
+.rango-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: -0.625rem; /* centra el thumb sobre la pista de 4px */
+  border: 2px solid var(--coral);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.18);
+  cursor: grab;
+}
+
+.rango-input::-moz-range-thumb {
+  pointer-events: auto;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--coral);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.18);
+  cursor: grab;
+}
+
+.rango-input:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+
+.rango-input:active::-moz-range-thumb {
+  cursor: grabbing;
+}
+
+/* El foco se dibuja sobre el thumb, ya que el input en sí es invisible. */
+.rango-input:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--violet);
+  outline-offset: 2px;
+}
+
+.rango-input:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--violet);
+  outline-offset: 2px;
+}

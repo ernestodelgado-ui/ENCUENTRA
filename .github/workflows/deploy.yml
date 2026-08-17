@@ -1,0 +1,58 @@
+name: Publicar en GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Permite publicar a mano desde la pestaña Actions.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Si se empujan dos commits seguidos, se publica el último y se cancela el anterior.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build estático
+        env:
+          # El sitio cuelga de /ENCUENTRA/, no de la raíz del dominio.
+          # Tiene que coincidir exactamente con el nombre del repositorio.
+          NEXT_PUBLIC_BASE_PATH: /ENCUENTRA
+          # Número del asesor. Se configura como "Repository variable" en
+          # Settings > Secrets and variables > Actions > Variables.
+          NEXT_PUBLIC_WHATSAPP_NUMERO: ${{ vars.NEXT_PUBLIC_WHATSAPP_NUMERO }}
+        run: npm run build
+
+      # Sin esto GitHub ignora la carpeta _next por empezar con guión bajo.
+      - name: Desactivar Jekyll
+        run: touch out/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

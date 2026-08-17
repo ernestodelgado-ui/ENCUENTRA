@@ -1,0 +1,9 @@
+Fotos de las propiedades.
+
+Poné acá los archivos (por ejemplo prop_001-1.jpg) y referencialos desde
+lib/propiedades/data.ts así:
+
+  images: ["/propiedades/prop_001-1.jpg"]
+
+La ruta arranca con / y NO lleva /ENCUENTRA: el prefijo lo agrega solo
+lib/assets.ts según dónde esté publicado el sitio.
