@@ -20,12 +20,23 @@ import type { Property } from "@/lib/propiedades/types";
 /**
  * Número del asesor, en formato internacional sin "+" ni espacios.
  *
- * Se configura con NEXT_PUBLIC_WHATSAPP_NUMERO en el archivo .env.local. El
- * valor de abajo es sólo para poder probar: hay que reemplazarlo por el real
- * antes de publicar.
+ * Se configura con NEXT_PUBLIC_WHATSAPP_NUMERO: en `.env.local` para
+ * desarrollo, y como variable del repositorio para el deploy.
+ *
+ * Ojo con el `??` acá: una variable de entorno sin definir en GitHub Actions
+ * llega como cadena **vacía**, no como `undefined`, y `"" ?? fallback` devuelve
+ * `""`. Eso dejaba todos los enlaces como "https://wa.me/", sin número. Por eso
+ * se valida que tenga contenido y no sólo que exista.
  */
+const NUMERO_CONFIGURADO = process.env.NEXT_PUBLIC_WHATSAPP_NUMERO?.trim();
+
+/** Provisorio, para poder probar. Reemplazar por el real antes de difundir. */
+const NUMERO_DE_PRUEBA = "59899123456";
+
 export const NUMERO_ASESOR =
-  process.env.NEXT_PUBLIC_WHATSAPP_NUMERO ?? "59899123456";
+  NUMERO_CONFIGURADO && NUMERO_CONFIGURADO.length > 0
+    ? NUMERO_CONFIGURADO
+    : NUMERO_DE_PRUEBA;
 
 function enlace(mensaje: string): string {
   return `https://wa.me/${NUMERO_ASESOR}?text=${encodeURIComponent(mensaje)}`;

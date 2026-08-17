@@ -42,7 +42,7 @@ export function Footer() {
               <SocialLink href="https://facebook.com" label="Facebook">
                 <FacebookIcon size={18} />
               </SocialLink>
-              <SocialLink href="https://wa.me/59899123456" label="WhatsApp">
+              <SocialLink href={`https://wa.me/${NUMERO_ASESOR}`} label="WhatsApp">
                 <MessageCircle size={18} aria-hidden />
               </SocialLink>
             </div>
