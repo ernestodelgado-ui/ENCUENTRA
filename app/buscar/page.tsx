@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { SearchFlow } from "@/components/buscar/search-flow";
+import { EntrevistaFlow } from "@/components/entrevista/entrevista-flow";
 
 export const metadata: Metadata = {
-  title: "Contanos qué estás buscando",
+  title: "Empecemos por vos",
   description:
-    "Elegí operación, tipo de propiedad, zona y presupuesto, y te mostramos opciones disponibles que pueden coincidir con tu búsqueda.",
+    "Cinco preguntas para entender qué estás buscando antes de mostrarte propiedades. Te lleva menos de dos minutos.",
 };
 
 export default function BuscarPage() {
-  return <SearchFlow />;
+  return <EntrevistaFlow />;
 }

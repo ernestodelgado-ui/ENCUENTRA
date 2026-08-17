@@ -1,0 +1,13 @@
+Imágenes originales, sin optimizar.
+
+Esta carpeta NO se publica: Next sólo sirve lo que está en public/.
+Acá vive el original por si hace falta regenerar otros tamaños.
+
+Para regenerar las versiones optimizadas del hero:
+
+  node -e "
+  const sharp=require('sharp');
+  sharp('design/foto1.png').resize({width:1600}).webp({quality:72}).toFile('public/hero-1600.webp');
+  sharp('design/foto1.png').resize({width:800}).webp({quality:72}).toFile('public/hero-800.webp');
+  sharp('design/foto1.png').resize({width:1600}).jpeg({quality:78,mozjpeg:true}).toFile('public/hero-1600.jpg');
+  "

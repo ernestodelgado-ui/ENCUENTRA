@@ -48,6 +48,35 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
+   Entrada de cada pantalla de la entrevista.
+
+   Un fundido con un desplazamiento mínimo, apenas suficiente para que se note
+   que se avanzó. Nada más: la sensación buscada es de calma, y una animación
+   vistosa entre preguntas la rompería.
+--------------------------------------------------------------------------- */
+
+@keyframes entrada-paso {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.paso-entra {
+  animation: entrada-paso 0.28s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paso-entra {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Barra de presupuesto con dos controles (desde / hasta).
 
    Son dos <input type="range"> nativos superpuestos sobre una misma pista, para
