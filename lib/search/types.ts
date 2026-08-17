@@ -45,6 +45,15 @@ export type SearchCriteria = {
   banos: number[];
   presupuesto: Presupuesto;
   caracteristicas: Caracteristica[];
+  /**
+   * Tope de gastos comunes mensuales en pesos. `null` es "sin tope".
+   *
+   * Pesa de verdad: un alquiler barato con gastos altos puede terminar
+   * costando más que uno caro sin ellos.
+   */
+  maxGastosComunes: number | null;
+  /** Superficie mínima en m². `null` es "sin mínimo". */
+  minSuperficie: number | null;
 };
 
 // ---------------------------------------------------------------- etiquetas
@@ -237,6 +246,8 @@ export const CRITERIOS_INICIALES: SearchCriteria = {
   banos: [],
   presupuesto: presupuestoCompleto("comprar", "USD"),
   caracteristicas: [],
+  maxGastosComunes: null,
+  minSuperficie: null,
 };
 
 // --------------------------------------------------------------- formateo

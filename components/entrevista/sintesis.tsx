@@ -3,13 +3,17 @@
 import { Check, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  CARACTERISTICA_LABEL,
   FINANCIACION_LABEL,
   MOMENTO,
-  PREFERENCIA_HOGAR_LABEL,
+  MUDANZA_LABEL,
+  OPERACION_LABEL,
+  PREFERENCIA_PISO_LABEL,
   PREFERENCIA_ZONA_LABEL,
+  TIPO_PROPIEDAD_LABEL,
   type SearchProfile,
 } from "@/lib/entrevista/types";
-import { OPERACION_LABEL, formatMoneda } from "@/lib/search/types";
+import { formatMoneda, formatMonto } from "@/lib/search/types";
 
 /**
  * "Creo que te entendimos": la devolución antes de mostrar nada.
@@ -18,9 +22,6 @@ import { OPERACION_LABEL, formatMoneda } from "@/lib/search/types";
  * Nada se deduce del texto libre — eso lo va a hacer la IA más adelante. Si un
  * bloque no tiene contenido, no aparece: preferimos un resumen corto y cierto
  * antes que uno completo e inventado.
- *
- * Por eso el texto libre se cita tal cual bajo "Lo que nos contaste", entre
- * comillas: es de la persona, no nuestro.
  */
 
 function Bloque({
@@ -48,6 +49,36 @@ function Cita({ texto }: { texto: string }) {
   );
 }
 
+function ListaMarcada({
+  items,
+  tipo,
+}: {
+  items: string[];
+  tipo: "must" | "nice";
+}) {
+  return (
+    <ul className="space-y-1.5">
+      {items.map((item) => (
+        <li
+          key={item}
+          className={`flex items-center gap-2 text-sm ${
+            tipo === "must"
+              ? "font-medium text-foreground"
+              : "text-muted-foreground"
+          }`}
+        >
+          {tipo === "must" ? (
+            <Check size={14} strokeWidth={3} className="text-coral" aria-hidden />
+          ) : (
+            <Circle size={11} className="text-violet" aria-hidden />
+          )}
+          {item}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function Sintesis({
   perfil,
   onConfirm,
@@ -57,12 +88,38 @@ export function Sintesis({
   onConfirm: () => void;
   onEditar: () => void;
 }) {
-  const { location, home, priorities, transaction, intent } = perfil;
+  const { location, property, priorities, budget, transaction } = perfil;
+  const esAlquiler = perfil.operation === "rent";
 
-  const hayTextos =
-    location.free_text.trim() !== "" ||
-    home.free_text.trim() !== "" ||
-    priorities.free_text.trim() !== "";
+  const textos = [location.freeText, property.freeText, priorities.freeText]
+    .map((t) => t.trim())
+    .filter((t) => t !== "");
+
+  const ambientes = [
+    property.bedrooms.length > 0
+      ? property.bedrooms
+          .slice()
+          .sort((a, b) => a - b)
+          .map((n) => (n === 0 ? "Monoambiente" : n === 5 ? "5+" : String(n)))
+          .join(", ") + " dormitorios"
+      : null,
+    property.bathrooms.length > 0
+      ? property.bathrooms
+          .slice()
+          .sort((a, b) => a - b)
+          .map((n) => (n === 4 ? "4+" : String(n)))
+          .join(", ") + " baños"
+      : null,
+    property.minArea !== null ? `Desde ${property.minArea} m²` : null,
+    property.floorPreference
+      ? PREFERENCIA_PISO_LABEL[property.floorPreference]
+      : null,
+  ].filter((v): v is string => v !== null);
+
+  const cabecera = [
+    OPERACION_LABEL[perfil.operation],
+    property.type ? TIPO_PROPIEDAD_LABEL[property.type] : null,
+  ].filter(Boolean);
 
   return (
     <div className="paso-entra">
@@ -77,105 +134,138 @@ export function Sintesis({
         <p className="text-xs font-semibold uppercase tracking-wide text-coral">
           Tu búsqueda
         </p>
+        <p className="mt-2 text-lg font-semibold text-foreground">
+          {cabecera.join(" · ")}
+        </p>
 
         <div className="mt-4 space-y-4">
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Buscás
-            </h3>
-            <p className="mt-2 text-lg font-semibold text-foreground">
-              {OPERACION_LABEL[transaction.operation]}
-            </p>
-          </div>
+          {(location.selectedLocations.length > 0 ||
+            location.preferences.length > 0) && (
+            <Bloque titulo="Zona">
+              {location.selectedLocations.length > 0 && (
+                <p className="text-sm font-medium text-foreground">
+                  {location.selectedLocations.join(" · ")}
+                </p>
+              )}
+              {location.preferences.length > 0 && (
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {location.preferences
+                    .map((p) => PREFERENCIA_ZONA_LABEL[p])
+                    .join(" · ")}
+                </p>
+              )}
+            </Bloque>
+          )}
 
           <Bloque titulo="Presupuesto">
-            <p className="text-lg font-semibold text-foreground">
-              {formatMoneda(transaction.budget_min, transaction.currency)} —{" "}
-              {formatMoneda(transaction.budget_max, transaction.currency)}
-            </p>
-            {transaction.financing && (
-              <p className="mt-1 text-sm text-muted-foreground">
-                {FINANCIACION_LABEL[transaction.financing]}
+            {esAlquiler ? (
+              <div className="space-y-1">
+                {budget.maxRent !== null && (
+                  <p className="text-sm font-medium text-foreground">
+                    Alquiler hasta ${formatMonto(budget.maxRent)}
+                  </p>
+                )}
+                {budget.maxTotalMonthly !== null && (
+                  <p className="text-sm font-medium text-foreground">
+                    Hasta ${formatMonto(budget.maxTotalMonthly)} por mes en total
+                  </p>
+                )}
+                {budget.maxRent === null && budget.maxTotalMonthly === null && (
+                  <p className="text-sm italic text-muted-foreground/70">
+                    Sin definir
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="text-lg font-semibold text-foreground">
+                {formatMoneda(budget.min ?? 0, budget.currency)} —{" "}
+                {formatMoneda(budget.max ?? 0, budget.currency)}
               </p>
             )}
           </Bloque>
 
-          {location.preferences.length > 0 && (
-            <Bloque titulo="Dónde">
-              <p className="text-sm text-foreground">
-                {location.preferences
-                  .map((p) => PREFERENCIA_ZONA_LABEL[p])
-                  .join(" · ")}
+          {budget.maxCommonExpenses !== null && (
+            <Bloque titulo="Gastos comunes">
+              <p className="text-sm font-medium text-foreground">
+                Hasta ${formatMonto(budget.maxCommonExpenses)}
               </p>
             </Bloque>
           )}
 
-          {home.preferences.length > 0 && (
+          {ambientes.length > 0 && (
+            <Bloque titulo="Necesitás">
+              <ul className="space-y-1">
+                {ambientes.map((a) => (
+                  <li key={a} className="text-sm font-medium text-foreground">
+                    {a}
+                  </li>
+                ))}
+              </ul>
+            </Bloque>
+          )}
+
+          {property.features.length > 0 && (
             <Bloque titulo="Te haría sentir en casa">
               <p className="text-sm text-foreground">
-                {home.preferences
-                  .map((p) => PREFERENCIA_HOGAR_LABEL[p])
+                {property.features
+                  .map((f) => CARACTERISTICA_LABEL[f])
                   .join(" · ")}
               </p>
             </Bloque>
           )}
 
-          {priorities.must_have.length > 0 && (
+          {priorities.mustHave.length > 0 && (
             <Bloque titulo="No negociarías">
-              <ul className="space-y-1.5">
-                {priorities.must_have.map((p) => (
-                  <li
-                    key={p}
-                    className="flex items-center gap-2 text-sm font-medium text-foreground"
-                  >
-                    <Check size={14} strokeWidth={3} className="text-coral" aria-hidden />
-                    {PREFERENCIA_HOGAR_LABEL[p]}
-                  </li>
-                ))}
-              </ul>
+              <ListaMarcada
+                items={priorities.mustHave.map((c) => CARACTERISTICA_LABEL[c])}
+                tipo="must"
+              />
             </Bloque>
           )}
 
-          {priorities.nice_to_have.length > 0 && (
+          {priorities.niceToHave.length > 0 && (
             <Bloque titulo="Te gustaría">
-              <ul className="space-y-1.5">
-                {priorities.nice_to_have.map((p) => (
-                  <li
-                    key={p}
-                    className="flex items-center gap-2 text-sm text-muted-foreground"
-                  >
-                    <Circle size={11} className="text-violet" aria-hidden />
-                    {PREFERENCIA_HOGAR_LABEL[p]}
-                  </li>
-                ))}
-              </ul>
+              <ListaMarcada
+                items={priorities.niceToHave.map((c) => CARACTERISTICA_LABEL[c])}
+                tipo="nice"
+              />
             </Bloque>
           )}
 
-          {intent.stage && (
+          {(transaction.financing ||
+            transaction.intent ||
+            transaction.moveTimeline) && (
             <Bloque titulo="Tu momento">
-              <p className="text-sm font-medium text-foreground">
-                {MOMENTO[intent.stage].titulo}
-              </p>
-              <p className="mt-0.5 text-sm text-muted-foreground">
-                {MOMENTO[intent.stage].detalle}
-              </p>
+              {transaction.financing && (
+                <p className="text-sm font-medium text-foreground">
+                  {FINANCIACION_LABEL[transaction.financing]}
+                </p>
+              )}
+              {transaction.moveTimeline && (
+                <p className="text-sm font-medium text-foreground">
+                  Mudanza: {MUDANZA_LABEL[transaction.moveTimeline]}
+                </p>
+              )}
+              {transaction.intent && (
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {MOMENTO[transaction.intent].titulo}.{" "}
+                  {MOMENTO[transaction.intent].detalle}
+                </p>
+              )}
             </Bloque>
           )}
         </div>
       </div>
 
-      {hayTextos && (
+      {textos.length > 0 && (
         <div className="mt-5 rounded-card border border-border bg-card p-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Lo que nos contaste
           </p>
           <div className="mt-3 space-y-3">
-            {location.free_text.trim() && <Cita texto={location.free_text.trim()} />}
-            {home.free_text.trim() && <Cita texto={home.free_text.trim()} />}
-            {priorities.free_text.trim() && (
-              <Cita texto={priorities.free_text.trim()} />
-            )}
+            {textos.map((t) => (
+              <Cita key={t} texto={t} />
+            ))}
           </div>
           <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
             Un asesor va a leer esto tal cual lo escribiste.

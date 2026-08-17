@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Bath, BedDouble, Ruler, MapPin } from "lucide-react";
+import { Bath, BedDouble, Ruler, MapPin } from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { VolverAtras } from "@/components/resultados/volver-atras";
 import { EnlaceExterno } from "@/components/resultados/enlace-externo";
 import { WhatsappBoton } from "@/components/resultados/whatsapp-cta";
 import { PropiedadTracker } from "@/components/resultados/propiedad-tracker";
@@ -77,13 +77,7 @@ export default async function PropiedadPage(
         <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
           <PropiedadTracker />
 
-          <Link
-            href="/buscar"
-            className="-ml-2 inline-flex min-h-11 items-center gap-1 rounded-full px-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ChevronLeft size={18} aria-hidden />
-            Volver a la búsqueda
-          </Link>
+          <VolverAtras />
 
           {propiedad.images.length > 0 ? (
             // eslint-disable-next-line @next/next/no-img-element

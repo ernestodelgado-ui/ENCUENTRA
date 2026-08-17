@@ -40,6 +40,8 @@ const PARAM = {
   desde: "desde",
   hasta: "hasta",
   caracteristicas: "carac",
+  maxGastosComunes: "gc",
+  minSuperficie: "m2",
 } as const;
 
 function listaDesde<T extends string>(
@@ -85,6 +87,13 @@ export function criteriosAParams(criteria: SearchCriteria): URLSearchParams {
     if (valores.length > 0) params.set(clave, valores.join(","));
   }
 
+  if (criteria.maxGastosComunes !== null) {
+    params.set(PARAM.maxGastosComunes, String(criteria.maxGastosComunes));
+  }
+  if (criteria.minSuperficie !== null) {
+    params.set(PARAM.minSuperficie, String(criteria.minSuperficie));
+  }
+
   return params;
 }
 
@@ -126,6 +135,12 @@ export function paramsACriterios(
   const desde = Number.isFinite(desdeCrudo) ? acotar(desdeCrudo) : rango.min;
   const hasta = Number.isFinite(hastaCrudo) ? acotar(hastaCrudo) : rango.max;
 
+  /** Enteros positivos y nada más; cualquier otra cosa es "sin tope". */
+  const enteroPositivo = (clave: string): number | null => {
+    const valor = Number.parseInt(leer(clave) ?? "", 10);
+    return Number.isFinite(valor) && valor > 0 ? valor : null;
+  };
+
   return {
     operacion,
     tiposPropiedad: listaDesde<TipoPropiedad>(leer(PARAM.tipos), TIPOS_PROPIEDAD),
@@ -141,5 +156,7 @@ export function paramsACriterios(
       leer(PARAM.caracteristicas),
       CARACTERISTICAS
     ),
+    maxGastosComunes: enteroPositivo(PARAM.maxGastosComunes),
+    minSuperficie: enteroPositivo(PARAM.minSuperficie),
   };
 }

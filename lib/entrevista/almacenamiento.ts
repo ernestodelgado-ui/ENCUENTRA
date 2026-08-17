@@ -1,84 +1,120 @@
 "use client";
 
 /**
- * Guarda las respuestas de la entrevista mientras dura la visita.
+ * Guarda lo respondido mientras dura la visita.
  *
  * Se usa `sessionStorage` y no la URL porque acá hay párrafos escritos a mano
  * que no entran en una query string. Y no `localStorage` porque esto es la
  * intención de una visita, no algo que deba quedar meses en un celular que
  * quizás se comparte.
  *
- * El motivo de guardarlo: alguien puede escribir dos minutos y recargar sin
- * querer. Con los filtros eso no importaba —se vuelve a tildar en segundos—,
- * acá sí.
+ * Cada operación guarda por separado: alguien puede estar mirando para comprar
+ * y además querer vender, y una cosa no debería pisar la otra.
  */
 
 import { presupuestoCompleto } from "@/lib/search/types";
-import type { SearchProfile } from "./types";
+import type { Operacion, SearchProfile, SellProfile } from "./types";
 
-const CLAVE = "encuentra:entrevista";
+const CLAVE_BUSQUEDA = "encuentra:busqueda";
+const CLAVE_VENTA = "encuentra:venta";
 
-export function perfilInicial(): SearchProfile {
-  const presupuesto = presupuestoCompleto("comprar", "USD");
+export function perfilInicial(operation: Operacion): SearchProfile {
+  // El rango arranca completo, que es la forma de decir "sin filtro".
+  const rango = presupuestoCompleto(
+    operation === "buy" ? "comprar" : "alquilar",
+    operation === "buy" ? "USD" : "UYU"
+  );
 
   return {
-    location: { free_text: "", preferences: [] },
-    home: { free_text: "", preferences: [] },
-    priorities: { free_text: "", must_have: [], nice_to_have: [] },
-    transaction: {
-      operation: "comprar",
-      currency: presupuesto.moneda,
-      budget_min: presupuesto.desde,
-      budget_max: presupuesto.hasta,
-      financing: null,
+    operation,
+    location: { freeText: "", selectedLocations: [], preferences: [] },
+    property: {
+      freeText: "",
+      type: null,
+      bedrooms: [],
+      bathrooms: [],
+      minArea: null,
+      floorPreference: null,
+      features: [],
     },
-    intent: { stage: null },
+    priorities: { freeText: "", mustHave: [], niceToHave: [] },
+    budget: {
+      currency: rango.moneda,
+      min: rango.desde,
+      max: rango.hasta,
+      maxCommonExpenses: null,
+      maxRent: null,
+      maxTotalMonthly: null,
+    },
+    transaction: { financing: null, intent: null, moveTimeline: null },
   };
 }
 
-export function guardarPerfil(perfil: SearchProfile): void {
-  if (typeof window === "undefined") return;
-
-  try {
-    window.sessionStorage.setItem(CLAVE, JSON.stringify(perfil));
-  } catch {
-    // Modo privado o almacenamiento lleno: la entrevista sigue funcionando,
-    // sólo se pierde lo escrito si se recarga.
-  }
+export function perfilVentaInicial(): SellProfile {
+  return {
+    operation: "sell",
+    property: { type: null, location: [], bedrooms: null },
+    motivation: null,
+    timeline: null,
+  };
 }
 
-/**
- * Devuelve lo guardado, completando con el perfil inicial lo que falte. Así un
- * dato viejo de una versión anterior no rompe la pantalla.
- */
-export function leerPerfil(): SearchProfile | null {
+function leerCrudo<T>(clave: string): Partial<T> | null {
   if (typeof window === "undefined") return null;
-
   try {
-    const guardado = window.sessionStorage.getItem(CLAVE);
-    if (!guardado) return null;
-
-    const parseado = JSON.parse(guardado) as Partial<SearchProfile>;
-    const base = perfilInicial();
-
-    return {
-      location: { ...base.location, ...parseado.location },
-      home: { ...base.home, ...parseado.home },
-      priorities: { ...base.priorities, ...parseado.priorities },
-      transaction: { ...base.transaction, ...parseado.transaction },
-      intent: { ...base.intent, ...parseado.intent },
-    };
+    const guardado = window.sessionStorage.getItem(clave);
+    return guardado ? (JSON.parse(guardado) as Partial<T>) : null;
   } catch {
     return null;
   }
 }
 
-export function limpiarPerfil(): void {
+function guardarCrudo(clave: string, valor: unknown): void {
   if (typeof window === "undefined") return;
-
   try {
-    window.sessionStorage.removeItem(CLAVE);
+    window.sessionStorage.setItem(clave, JSON.stringify(valor));
   } catch {
-    // Sin nada que hacer.
+    // Modo privado o almacenamiento lleno: el recorrido sigue funcionando,
+    // sólo se pierde lo escrito si se recarga.
   }
+}
+
+export function guardarPerfil(perfil: SearchProfile): void {
+  guardarCrudo(`${CLAVE_BUSQUEDA}:${perfil.operation}`, perfil);
+}
+
+/**
+ * Devuelve lo guardado completando con el perfil inicial lo que falte, así un
+ * dato de una versión anterior no rompe la pantalla.
+ */
+export function leerPerfil(operation: Operacion): SearchProfile | null {
+  const guardado = leerCrudo<SearchProfile>(`${CLAVE_BUSQUEDA}:${operation}`);
+  if (!guardado) return null;
+
+  const base = perfilInicial(operation);
+  return {
+    operation,
+    location: { ...base.location, ...guardado.location },
+    property: { ...base.property, ...guardado.property },
+    priorities: { ...base.priorities, ...guardado.priorities },
+    budget: { ...base.budget, ...guardado.budget },
+    transaction: { ...base.transaction, ...guardado.transaction },
+  };
+}
+
+export function guardarVenta(perfil: SellProfile): void {
+  guardarCrudo(CLAVE_VENTA, perfil);
+}
+
+export function leerVenta(): SellProfile | null {
+  const guardado = leerCrudo<SellProfile>(CLAVE_VENTA);
+  if (!guardado) return null;
+
+  const base = perfilVentaInicial();
+  return {
+    operation: "sell",
+    property: { ...base.property, ...guardado.property },
+    motivation: guardado.motivation ?? null,
+    timeline: guardado.timeline ?? null,
+  };
 }

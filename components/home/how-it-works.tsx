@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 
 /**
  * Los tres pasos van numerados porque son una secuencia real: el orden importa
@@ -59,11 +58,8 @@ export function HowItWorks() {
           ))}
         </ol>
 
-        <div className="mt-12 text-center">
-          <Button href="/buscar" size="lg">
-            Empezar mi búsqueda →
-          </Button>
-        </div>
+        {/* Sin botones acá: el cierre de la Home, unas líneas más abajo, ya
+            repite las tres puertas. Dos veces seguidas era ruido. */}
       </div>
     </section>
   );

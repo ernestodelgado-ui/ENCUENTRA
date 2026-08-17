@@ -1,9 +1,12 @@
-import { Button } from "@/components/ui/button";
+import { PuertasCompactas } from "@/components/home/puertas";
 
 /**
- * Cierre. Es la única parte de la home donde encuentra. se permite hablar de la
+ * Cierre. Es la única parte de la Home donde encuentra. se permite hablar de la
  * intención en lugar de la mecánica, y por eso va sola: sin íconos, sin tarjeta
  * y sin nada alrededor que le reste peso.
+ *
+ * Debajo repite las tres puertas en vez de un botón único: con tres caminos
+ * posibles, un solo CTA tendría que elegir uno por la persona.
  */
 export function ClosingCta() {
   return (
@@ -12,14 +15,12 @@ export function ClosingCta() {
         No buscamos mostrarte más propiedades.
       </p>
       <p className="mt-2 font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl">
-        Queremos ayudarte a encontrar{" "}
-        <span className="text-coral">la indicada.</span>
+        Queremos ayudarte a resolver{" "}
+        <span className="text-coral">lo que necesitás.</span>
       </p>
 
       <div className="mt-8">
-        <Button href="/buscar" size="lg" className="w-full justify-center sm:w-auto">
-          Contanos qué estás buscando →
-        </Button>
+        <PuertasCompactas />
       </div>
     </section>
   );

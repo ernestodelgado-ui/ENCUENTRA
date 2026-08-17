@@ -52,8 +52,15 @@ export function SearchSummary({ criteria }: { criteria: SearchCriteria }) {
         ))}
       </div>
 
+      {/* Devuelve al recorrido de la operación que se estaba usando, no a una
+          pantalla genérica: quien buscaba alquiler no debería aterrizar en el
+          recorrido de compra. */}
       <Link
-        href="/buscar"
+        href={
+          criteria.operacion === "alquilar"
+            ? "/buscar/alquilar"
+            : "/buscar/comprar"
+        }
         className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-coral underline decoration-coral/30 underline-offset-4 transition-colors hover:decoration-coral"
       >
         <Pencil size={14} aria-hidden />

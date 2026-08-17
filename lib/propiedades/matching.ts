@@ -51,6 +51,12 @@ export type PropiedadPuntuada = {
   puntaje: number;
   /** Cuáles de las características pedidas tiene, para destacarlas en la tarjeta. */
   coincidencias: Caracteristica[];
+  /**
+   * Si los gastos comunes entran en el tope indicado. `null` cuando no se puso
+   * tope o la propiedad no tiene gastos. Lo consume la tarjeta para mostrar el
+   * ✓ o el ○ sin recalcular nada.
+   */
+  gastosComunesEnPresupuesto: boolean | null;
 };
 
 export type ResultadoBusqueda = {
@@ -114,11 +120,40 @@ function cumpleCantidad(
   return seleccionadas.includes(tope) && valor >= tope;
 }
 
+/**
+ * Los gastos comunes son parte del costo real de vivir ahí, así que se tratan
+ * como el precio: dentro del tope es coincidencia exacta, por encima manda la
+ * propiedad a "cercanas" en vez de descartarla.
+ *
+ * Una propiedad sin gastos comunes (una casa, un terreno) nunca falla este
+ * criterio: no tener es mejor que estar dentro del tope.
+ */
+export function cumpleGastosComunes(
+  property: Property,
+  criteria: SearchCriteria
+): boolean {
+  if (criteria.maxGastosComunes === null) return true;
+  if (property.common_expenses === null) return true;
+  return property.common_expenses <= criteria.maxGastosComunes;
+}
+
+function cumpleSuperficie(
+  property: Property,
+  criteria: SearchCriteria
+): boolean {
+  if (criteria.minSuperficie === null) return true;
+  // Sin el dato no se puede descartar: el aviso puede no informarlo.
+  if (property.area === null) return true;
+  return property.area >= criteria.minSuperficie;
+}
+
 function cumpleAjustables(
   property: Property,
   criteria: SearchCriteria
 ): boolean {
   if (!cumplePrecio(property, criteria)) return false;
+  if (!cumpleGastosComunes(property, criteria)) return false;
+  if (!cumpleSuperficie(property, criteria)) return false;
 
   // Un terreno no tiene ambientes: pedirle dormitorios lo dejaría siempre
   // afuera, cuando en realidad el criterio no le aplica.
@@ -184,6 +219,10 @@ export function buscarPropiedades(
       property,
       puntaje: puntuar(property, criteria, coincidencias),
       coincidencias,
+      gastosComunesEnPresupuesto:
+        criteria.maxGastosComunes === null || property.common_expenses === null
+          ? null
+          : property.common_expenses <= criteria.maxGastosComunes,
     };
 
     if (cumpleAjustables(property, criteria)) {

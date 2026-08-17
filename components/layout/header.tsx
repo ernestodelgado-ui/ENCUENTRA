@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
+import { PUERTAS } from "@/components/home/puertas";
 
 const NAV_LINKS = [
   { href: "/como-funciona", label: "Cómo funciona" },
@@ -59,11 +60,10 @@ export function Header() {
             ))}
           </nav>
 
-          <div className="hidden md:block">
-            <Button href="/buscar" variant="primary" size="sm">
-              Empezar búsqueda
-            </Button>
-          </div>
+          {/* Acá había un único CTA "Empezar búsqueda". Con tres puertas
+              —comprar, alquilar y vender— un botón solo tendría que elegir una
+              por la persona, y compite con la decisión que el hero le pide
+              tomar. El logo ya alcanza como vuelta al inicio. */}
 
           <button
             type="button"
@@ -102,15 +102,18 @@ export function Header() {
               </Link>
             ))}
           </nav>
-          <div className="border-t border-border p-4">
-            <Button
-              href="/buscar"
-              variant="primary"
-              className="w-full"
-              onClick={() => setOpen(false)}
-            >
-              Empezar búsqueda
-            </Button>
+          <div className="space-y-2 border-t border-border p-4">
+            {PUERTAS.map((puerta) => (
+              <Button
+                key={puerta.href}
+                href={puerta.href}
+                variant={puerta.href === "/vender" ? "outline" : "primary"}
+                className="w-full justify-center"
+                onClick={() => setOpen(false)}
+              >
+                {puerta.titulo}
+              </Button>
+            ))}
           </div>
         </div>
       )}

@@ -1,6 +1,7 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MAX_TEXTO } from "@/lib/entrevista/types";
 
@@ -101,17 +102,64 @@ export function TextoLibre({
  */
 export function GrupoChips({
   titulo,
+  ayuda,
   children,
 }: {
   titulo: string;
+  ayuda?: string;
   children: React.ReactNode;
 }) {
   return (
-    <fieldset className="mt-7">
+    <fieldset className="mt-6">
       <legend className="text-sm font-semibold text-foreground">
         {titulo}
       </legend>
+      {ayuda && <p className="mt-1 text-sm text-muted-foreground">{ayuda}</p>}
       <div className="mt-3 flex flex-wrap gap-2">{children}</div>
     </fieldset>
+  );
+}
+
+/**
+ * "Prefiero elegir": abre los controles estructurados sin salir de la pantalla.
+ *
+ * La respuesta principal es siempre el texto libre. Esto es para quien prefiere
+ * tildar, y para quien quiere precisar algo puntual después de escribir. Que se
+ * despliegue acá mismo y no en otro paso es deliberado: cada pantalla de más es
+ * gente que abandona.
+ */
+export function PrefieroElegir({
+  abiertoInicial = false,
+  children,
+}: {
+  abiertoInicial?: boolean;
+  children: React.ReactNode;
+}) {
+  const [abierto, setAbierto] = useState(abiertoInicial);
+  const id = useId();
+
+  return (
+    <div className="mt-5">
+      <button
+        type="button"
+        onClick={() => setAbierto((v) => !v)}
+        aria-expanded={abierto}
+        aria-controls={id}
+        className="flex items-center gap-1.5 text-sm font-semibold text-coral underline decoration-coral/30 underline-offset-4 transition-colors hover:decoration-coral"
+      >
+        <ChevronDown
+          size={16}
+          aria-hidden
+          className={`transition-transform ${abierto ? "rotate-180" : ""}`}
+        />
+        {abierto ? "Listo, cerrar" : "Prefiero elegir"}
+      </button>
+
+      {abierto && (
+        <div id={id} className="mt-4">
+          {children}
+        </div>
+      )}
+    </div>
   );
 }

@@ -52,6 +52,14 @@ export type Property = {
   bathrooms: number;
   /** Superficie en m². `null` cuando el aviso original no la informa. */
   area: number | null;
+  /**
+   * Gastos comunes mensuales en pesos. `null` cuando no corresponden (una casa,
+   * un terreno) o cuando el aviso no los informa.
+   *
+   * Pesan de verdad en la decisión: un alquiler barato con gastos altos puede
+   * costar más que uno caro sin ellos, así que el motor los tiene en cuenta.
+   */
+  common_expenses: number | null;
   features: PropertyFeature[];
   /** Rutas o URLs de imágenes. Vacío hasta que haya fotos reales. */
   images: string[];

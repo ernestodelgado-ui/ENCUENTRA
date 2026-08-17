@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation";
 import { FlowShell } from "@/components/buscar/flow-shell";
 import { HeaderMinimo } from "@/components/buscar/header-minimo";
 import { PreguntaLugar } from "@/components/entrevista/pregunta-lugar";
-import { PreguntaHogar } from "@/components/entrevista/pregunta-hogar";
+import { PreguntaPropiedad } from "@/components/entrevista/pregunta-propiedad";
 import { PreguntaPrioridades } from "@/components/entrevista/pregunta-prioridades";
 import { PreguntaPresupuesto } from "@/components/entrevista/pregunta-presupuesto";
-import { PreguntaMomento } from "@/components/entrevista/pregunta-momento";
 import { Sintesis } from "@/components/entrevista/sintesis";
 import {
   guardarPerfil,
@@ -16,62 +15,57 @@ import {
   perfilInicial,
 } from "@/lib/entrevista/almacenamiento";
 import { perfilAUrl } from "@/lib/entrevista/a-criterios";
-import type { SearchProfile } from "@/lib/entrevista/types";
+import type { Operacion, SearchProfile } from "@/lib/entrevista/types";
 import { capturarUtms, track } from "@/lib/analytics";
 
-/** 1 a 5 son las preguntas y 6 la síntesis. */
-const PASOS = [1, 2, 3, 4, 5, 6] as const;
+/** 1 a 4 son las preguntas y 5 la síntesis. */
+const PASOS = [1, 2, 3, 4, 5] as const;
 type Paso = (typeof PASOS)[number];
 
-const TOTAL_PREGUNTAS = 5;
+const TOTAL_PREGUNTAS = 4;
 
 function esPaso(valor: unknown): valor is Paso {
   return PASOS.includes(valor as Paso);
 }
 
 /**
- * La entrevista completa.
+ * El recorrido guiado de comprar y de alquilar.
  *
- * Arranca directo en la primera pregunta: la pantalla de introducción que había
- * antes se fundió con el hero de la Home, que ya decía lo mismo. Desde la
- * pregunta 1, "volver" sale del recorrido y devuelve a la Home, que es de donde
- * se viene.
+ * Los dos comparten las cuatro preguntas y se diferencian por dentro: cada
+ * pantalla consulta `lib/entrevista/reglas.ts` para saber qué corresponde
+ * mostrar. Duplicar el recorrido habría significado mantener dos veces lo
+ * mismo para que cambien tres campos.
  *
- * Las respuestas viven acá, no en cada pregunta: al cambiar de pantalla se
- * desmonta sólo la pregunta y el perfil queda arriba intacto. Además se espeja
- * en sessionStorage, porque alguien puede escribir dos minutos y recargar sin
- * querer.
+ * La operación llega desde la Home, así que no se vuelve a preguntar. Desde la
+ * pregunta 1, "volver" sale del recorrido y devuelve a la Home.
  *
- * Cada avance empuja una entrada al historial, así el botón atrás del navegador
- * recorre la entrevista en lugar de salir del sitio. El paso también viaja en
- * `history.state`, que el navegador conserva al recargar: si alguien recarga en
- * la pregunta 3, vuelve a la pregunta 3 con lo que había escrito.
+ * Las respuestas viven acá y se espejan en sessionStorage, porque alguien puede
+ * escribir dos minutos y recargar sin querer. El paso viaja en `history.state`,
+ * que el navegador conserva al recargar.
  */
-export function EntrevistaFlow() {
+export function EntrevistaFlow({ operacion }: { operacion: Operacion }) {
   const router = useRouter();
   const [paso, setPaso] = useState<Paso>(1);
-  const [perfil, setPerfil] = useState<SearchProfile>(perfilInicial);
+  const [perfil, setPerfil] = useState<SearchProfile>(() =>
+    perfilInicial(operacion)
+  );
 
-  // Restaurar después de montar y no durante el render.
-  //
-  // `sessionStorage` y `history.state` sólo existen en el navegador, y esta
-  // ruta se prerenderiza: leerlos mientras se renderiza haría que el primer
-  // render del cliente no coincida con el HTML servido y rompa la hidratación.
-  // Por eso el estado arranca en la introducción y se corrige acá.
+  // Restaurar después de montar y no durante el render: `sessionStorage` y
+  // `history.state` sólo existen en el navegador, y esta ruta se prerenderiza.
   /* eslint-disable react-hooks/set-state-in-effect --
-     Ver el párrafo de arriba: es lectura de estado del navegador tras montar,
-     que es justamente el caso que esta regla no puede cubrir. */
+     Es lectura de estado del navegador tras montar, que es justamente el caso
+     que esta regla no puede cubrir. */
   useEffect(() => {
     capturarUtms();
-    track("search_started");
+    track("search_started", { operacion });
 
-    const guardado = leerPerfil();
+    const guardado = leerPerfil(operacion);
     if (guardado) setPerfil(guardado);
 
     const pasoGuardado = (window.history.state as { encuentraPaso?: unknown } | null)
       ?.encuentraPaso;
     if (esPaso(pasoGuardado)) setPaso(pasoGuardado);
-  }, []);
+  }, [operacion]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const actualizar = useCallback((siguiente: SearchProfile) => {
@@ -100,19 +94,20 @@ export function EntrevistaFlow() {
 
   const verResultados = useCallback(() => {
     track("search_completed", {
-      origen: "entrevista",
-      operacion: perfil.transaction.operation,
-      financiacion: perfil.transaction.financing ?? "sin-responder",
-      momento: perfil.intent.stage ?? "sin-responder",
-      imprescindibles: perfil.priorities.must_have.length,
+      origen: "recorrido",
+      operacion,
+      tipo: perfil.property.type ?? "sin-definir",
+      zonas: perfil.location.selectedLocations.length,
+      imprescindibles: perfil.priorities.mustHave.length,
+      topeGastosComunes: perfil.budget.maxCommonExpenses ?? "sin-tope",
       escribio: [
-        perfil.location.free_text,
-        perfil.home.free_text,
-        perfil.priorities.free_text,
+        perfil.location.freeText,
+        perfil.property.freeText,
+        perfil.priorities.freeText,
       ].filter((t) => t.trim() !== "").length,
     });
     router.push(perfilAUrl(perfil));
-  }, [perfil, router]);
+  }, [operacion, perfil, router]);
 
   const props = { perfil, onChange: actualizar };
 
@@ -124,22 +119,21 @@ export function EntrevistaFlow() {
         progreso={
           paso <= TOTAL_PREGUNTAS
             ? {
-                label: `Pregunta ${paso} de ${TOTAL_PREGUNTAS}`,
+                label: `${paso} de ${TOTAL_PREGUNTAS}`,
                 valor: paso / TOTAL_PREGUNTAS,
               }
             : undefined
         }
       >
         {paso === 1 && <PreguntaLugar {...props} onContinue={() => irA(2)} />}
-        {paso === 2 && <PreguntaHogar {...props} onContinue={() => irA(3)} />}
+        {paso === 2 && <PreguntaPropiedad {...props} onContinue={() => irA(3)} />}
         {paso === 3 && (
           <PreguntaPrioridades {...props} onContinue={() => irA(4)} />
         )}
         {paso === 4 && (
           <PreguntaPresupuesto {...props} onContinue={() => irA(5)} />
         )}
-        {paso === 5 && <PreguntaMomento {...props} onContinue={() => irA(6)} />}
-        {paso === 6 && (
+        {paso === 5 && (
           <Sintesis
             perfil={perfil}
             onConfirm={verResultados}
