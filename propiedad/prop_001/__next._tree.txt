@@ -1,4 +1,4 @@
-:HL["/ENCUENTRA/_next/static/chunks/0lbcjo198ptzp.css","style"]
+:HL["/ENCUENTRA/_next/static/chunks/0dqos4nl9jr-9.css","style"]
 :HC["/",""]
 :HL["/ENCUENTRA/propiedades/prop_001.webp","image"]
-0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"propiedad","param":null,"prefetchHints":4192,"slots":{"children":{"name":"id","param":{"type":"d","key":"prop_001","siblings":[]},"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}},"staleTime":300,"buildId":"JgGm3A4zMCvU2-2aKbUK7"}
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"propiedad","param":null,"prefetchHints":4192,"slots":{"children":{"name":"id","param":{"type":"d","key":"prop_001","siblings":[]},"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}},"staleTime":300,"buildId":"ySqTyqZw4PPXsJvH4cyWg"}

@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FlowShell } from "@/components/buscar/flow-shell";
 import { HeaderMinimo } from "@/components/buscar/header-minimo";
-import { Intro } from "@/components/entrevista/intro";
 import { PreguntaLugar } from "@/components/entrevista/pregunta-lugar";
 import { PreguntaHogar } from "@/components/entrevista/pregunta-hogar";
 import { PreguntaPrioridades } from "@/components/entrevista/pregunta-prioridades";
@@ -20,8 +19,8 @@ import { perfilAUrl } from "@/lib/entrevista/a-criterios";
 import type { SearchProfile } from "@/lib/entrevista/types";
 import { capturarUtms, track } from "@/lib/analytics";
 
-/** 0 es la introducción, 1 a 5 las preguntas y 6 la síntesis. */
-const PASOS = [0, 1, 2, 3, 4, 5, 6] as const;
+/** 1 a 5 son las preguntas y 6 la síntesis. */
+const PASOS = [1, 2, 3, 4, 5, 6] as const;
 type Paso = (typeof PASOS)[number];
 
 const TOTAL_PREGUNTAS = 5;
@@ -32,6 +31,11 @@ function esPaso(valor: unknown): valor is Paso {
 
 /**
  * La entrevista completa.
+ *
+ * Arranca directo en la primera pregunta: la pantalla de introducción que había
+ * antes se fundió con el hero de la Home, que ya decía lo mismo. Desde la
+ * pregunta 1, "volver" sale del recorrido y devuelve a la Home, que es de donde
+ * se viene.
  *
  * Las respuestas viven acá, no en cada pregunta: al cambiar de pantalla se
  * desmonta sólo la pregunta y el perfil queda arriba intacto. Además se espeja
@@ -45,7 +49,7 @@ function esPaso(valor: unknown): valor is Paso {
  */
 export function EntrevistaFlow() {
   const router = useRouter();
-  const [paso, setPaso] = useState<Paso>(0);
+  const [paso, setPaso] = useState<Paso>(1);
   const [perfil, setPerfil] = useState<SearchProfile>(perfilInicial);
 
   // Restaurar después de montar y no durante el render.
@@ -87,7 +91,7 @@ export function EntrevistaFlow() {
     const alVolver = (event: PopStateEvent) => {
       const guardado = (event.state as { encuentraPaso?: unknown } | null)
         ?.encuentraPaso;
-      setPaso(esPaso(guardado) ? guardado : 0);
+      setPaso(esPaso(guardado) ? guardado : 1);
     };
 
     window.addEventListener("popstate", alVolver);
@@ -109,12 +113,6 @@ export function EntrevistaFlow() {
     });
     router.push(perfilAUrl(perfil));
   }, [perfil, router]);
-
-  // La introducción va a sangre completa y con su propio logo: no lleva el
-  // encabezado ni el marco de las preguntas.
-  if (paso === 0) {
-    return <Intro onStart={() => irA(1)} />;
-  }
 
   const props = { perfil, onChange: actualizar };
 

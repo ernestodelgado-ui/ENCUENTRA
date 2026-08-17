@@ -1,52 +1,95 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { asset } from "@/lib/assets";
 
 /**
- * El hero carga toda la propuesta: encuentra. no arranca por las propiedades,
- * arranca por la persona.
+ * El hero carga toda la propuesta y además es la puerta de entrada a la
+ * entrevista.
  *
- * Los tres beneficios que antes vivían acá se mudaron a su propia sección. En
- * celular empujaban el CTA fuera de la pantalla, y la idea es que se entienda
- * qué es, por qué es distinto y qué hacer sin tener que scrollear.
+ * Antes había dos pantallas para esto: esta y una introducción dentro de
+ * /buscar. Hacían el mismo trabajo —mismo titular, mismo botón, las mismas tres
+ * promesas— así que se fundieron acá. "Empezar mi búsqueda" ahora va derecho a
+ * la primera pregunta, sin escala intermedia.
+ *
+ * El velo cambia de dirección según el ancho: en celular baja en vertical,
+ * firme arriba donde está el titular y casi transparente abajo, para que la
+ * foto se vea; en desktop corre en horizontal y deja limpia la mitad derecha,
+ * donde está la persona.
  */
 export function Hero() {
   return (
-    <section className="mx-auto max-w-6xl px-4 pb-14 pt-10 sm:px-6 sm:pt-14 lg:grid lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-14 lg:px-8 lg:pt-20">
-      <div>
-        <h1 className="font-display text-[2rem] font-bold leading-[1.12] tracking-tight text-foreground sm:text-5xl">
-          Primero entendemos qué buscás.{" "}
-          <span className="block">
-            Después salimos a{" "}
-            <span className="text-coral">encontrarlo.</span>
-          </span>
-        </h1>
+    <section className="relative isolate overflow-hidden">
+      {/* Decorativa: lo que hay que leer está en el texto. El `alt` vacío ya la
+          saca del árbol de accesibilidad.
 
-        <p className="mt-5 max-w-lg text-lg leading-relaxed text-muted-foreground">
-          No empieces por cientos de propiedades. Empecemos por vos. Contanos qué
-          necesitás y te ayudamos a encontrar opciones que realmente tengan
-          sentido para tu búsqueda.
-        </p>
+          Se sirve en WebP con una versión chica para celular (43 KB) y otra
+          para pantallas grandes (116 KB), con JPG de respaldo. */}
+      <picture>
+        <source
+          media="(max-width: 640px)"
+          srcSet={asset("/hero-800.webp")}
+          type="image/webp"
+        />
+        <source srcSet={asset("/hero-1600.webp")} type="image/webp" />
+        <img
+          src={asset("/hero-1600.jpg")}
+          alt=""
+          fetchPriority="high"
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-[68%_center]"
+        />
+      </picture>
 
-        <div className="mt-8">
-          <Button href="/buscar" size="lg" className="w-full justify-center sm:w-auto">
-            Empezar mi búsqueda →
-          </Button>
-          <p className="mt-3 text-sm text-muted-foreground">
-            Gratis · Sin compromiso · En menos de 2 minutos
+      {/* Velo justo: el suficiente para que el texto se lea, y ni uno más, para
+          que la foto siga siendo una foto.
+
+          La bajada va sobre la zona más contrastada de la imagen —de cielo
+          claro a pelo oscuro—. Con el gris habitual de bajadas quedaba en
+          2,5:1, por debajo del mínimo legible de 4,5:1. Se resolvió oscureciendo
+          la tipografía (ver abajo) en lugar de tapar la fotografía: así queda
+          en torno a 7:1 sin apagarla. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-background/95 via-background/72 to-background/15 sm:bg-gradient-to-r sm:from-background sm:via-background/85 sm:to-transparent"
+      />
+
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8 lg:py-32">
+        <div className="max-w-xl">
+          <h1 className="font-display text-[2rem] font-bold leading-[1.12] tracking-tight text-foreground sm:text-5xl">
+            Primero entendemos qué buscás.{" "}
+            <span className="block">
+              Después salimos a <span className="text-coral">encontrarlo.</span>
+            </span>
+          </h1>
+
+          {/* Más oscura que el gris habitual de bajadas: acá va sobre una
+              fotografía, no sobre el fondo plano del resto del sitio. */}
+          <p className="mt-5 max-w-md text-lg leading-relaxed text-foreground/80">
+            No empieces por cientos de propiedades. Empecemos por vos. Contanos
+            qué necesitás y te ayudamos a encontrar opciones que realmente
+            tengan sentido para tu búsqueda.
           </p>
-        </div>
-      </div>
 
-      {/* La fotografía acompaña, no compite: va después del CTA en celular y con
-          un tratamiento más suave que el del titular. Reemplazar por una foto
-          real, luminosa, de una propiedad representativa de Uruguay. */}
-      <div className="mt-12 lg:mt-0">
-        <div
-          role="img"
-          aria-label="Living luminoso de un apartamento, con grandes ventanales, plantas y vista a la ciudad"
-          className="relative aspect-[4/3] w-full overflow-hidden rounded-card bg-gradient-to-br from-orange/15 via-coral/[0.06] to-violet/10 sm:aspect-[16/11]"
-        >
-          <div className="absolute inset-0 flex items-center justify-center text-sm text-foreground/30">
-            [ foto de propiedad — placeholder ]
+          <div className="mt-8">
+            <Button
+              href="/buscar"
+              size="lg"
+              className="w-full justify-center sm:w-auto"
+            >
+              Empezar mi búsqueda →
+            </Button>
+
+            <p className="mt-3 text-sm text-foreground/70">
+              Son 5 preguntas · Menos de 2 minutos · Gratis y sin compromiso
+            </p>
+
+            <div className="mt-4">
+              <Link
+                href="/buscar/filtros"
+                className="inline-block text-sm font-medium text-foreground/75 underline decoration-foreground/25 underline-offset-4 transition-colors hover:text-foreground hover:decoration-foreground/60"
+              >
+                Prefiero buscar con filtros
+              </Link>
+            </div>
           </div>
         </div>
       </div>
