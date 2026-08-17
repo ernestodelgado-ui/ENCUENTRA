@@ -35,9 +35,13 @@ export function PuertasGrandes() {
     <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
       {PUERTAS.map(({ href, icon: Icon, titulo, detalle }) => (
         <li key={href}>
+          {/* `h-full` es lo que empareja las tres tarjetas. La grilla estira el
+              <li> a la altura de la fila, pero el enlace de adentro se quedaba
+              con el alto de su contenido: "Alquilar", cuya descripción entra en
+              una línea, medía 134px contra 153px de las otras dos. */}
           <Link
             href={href}
-            className="flex min-h-15 items-center gap-3 rounded-card border border-border bg-card/95 px-4 py-3 transition-colors hover:border-coral hover:bg-card sm:min-h-16 sm:flex-col sm:items-start sm:justify-center sm:gap-2 sm:py-5"
+            className="flex h-full min-h-15 items-center gap-3 rounded-card border border-border bg-card/95 px-4 py-3 transition-colors hover:border-coral hover:bg-card sm:min-h-16 sm:flex-col sm:items-start sm:justify-center sm:gap-2 sm:py-5"
           >
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-coral/10 text-coral">
               <Icon size={19} aria-hidden />
