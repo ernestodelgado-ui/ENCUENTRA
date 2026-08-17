@@ -1,26 +1,28 @@
-import { SlidersHorizontal, ListChecks, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
+/**
+ * Los tres pasos van numerados porque son una secuencia real: el orden importa
+ * y es parte de lo que se quiere comunicar (primero vos, después las
+ * propiedades).
+ */
 const PASOS = [
   {
-    number: "1",
-    icon: SlidersHorizontal,
-    title: "Contá qué buscás",
+    numero: "01",
+    title: "Contanos qué buscás",
     description:
-      "Elegí operación, tipo de propiedad, zona y presupuesto.",
+      "Zona, presupuesto, tipo de propiedad y aquello que para vos es importante.",
   },
   {
-    number: "2",
-    icon: ListChecks,
-    title: "Afiná tu búsqueda",
+    numero: "02",
+    title: "Te mostramos coincidencias",
     description:
-      "Sumá dormitorios, baños y las características que sean importantes para vos.",
+      "Seleccionamos propiedades disponibles que se acercan a lo que estás buscando.",
   },
   {
-    number: "3",
-    icon: Search,
-    title: "Encontrá opciones",
+    numero: "03",
+    title: "Seguimos buscando con vos",
     description:
-      "Te mostramos propiedades disponibles que pueden coincidir con tu búsqueda, y podés hablar con un asesor cuando quieras.",
+      "¿Ninguna era la indicada? Podés hablar con un asesor para continuar la búsqueda.",
   },
 ];
 
@@ -28,39 +30,41 @@ export function HowItWorks() {
   return (
     <section
       aria-labelledby="how-it-works-heading"
-      className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8"
+      className="border-y border-border bg-card"
     >
-      <h2
-        id="how-it-works-heading"
-        className="text-center font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
-      >
-        Así de simple funciona <span className="text-coral">encuentra.</span>
-      </h2>
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+        <h2
+          id="how-it-works-heading"
+          className="text-center font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
+        >
+          Cómo funciona
+        </h2>
 
-      <ol className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
-        {PASOS.map(({ number, icon: Icon, title, description }) => (
-          <li
-            key={number}
-            className="relative rounded-card border border-border bg-card p-6"
-          >
-            <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet/10 text-violet">
-                <Icon size={20} aria-hidden />
-              </span>
-              <span
+        <ol className="mt-10 grid grid-cols-1 gap-8 sm:mt-12 sm:grid-cols-3 sm:gap-8">
+          {PASOS.map(({ numero, title, description }) => (
+            <li key={numero} className="border-t-2 border-coral/25 pt-5">
+              <p
                 aria-hidden
-                className="text-sm font-semibold text-muted-foreground"
+                className="font-display text-sm font-bold tabular-nums tracking-widest text-coral"
               >
-                Paso {number}
-              </span>
-            </div>
-            <h3 className="mt-4 text-lg font-semibold text-foreground">
-              {title}
-            </h3>
-            <p className="mt-2 text-sm text-muted-foreground">{description}</p>
-          </li>
-        ))}
-      </ol>
+                {numero}
+              </p>
+              <h3 className="mt-2 text-lg font-semibold text-foreground">
+                {title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {description}
+              </p>
+            </li>
+          ))}
+        </ol>
+
+        <div className="mt-12 text-center">
+          <Button href="/buscar" size="lg">
+            Empezar mi búsqueda →
+          </Button>
+        </div>
+      </div>
     </section>
   );
 }

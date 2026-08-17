@@ -5,20 +5,22 @@ import "./globals.css";
 
 const siteUrl = "https://encuentra.com.uy";
 
-// Una sola fuente para la descripción: se repetía en tres lugares y se
-// desincronizó apenas cambiamos el producto.
+// Una sola fuente para el título y la descripción: se repetían en tres lugares
+// y se desincronizaban cada vez que cambiaba el posicionamiento.
+const titulo = "encuentra. — Primero entendemos qué buscás";
+
 const descripcion =
-  "Contanos qué estás buscando y te mostramos opciones que pueden encajar con vos. Propiedades en Uruguay, con un asesor a mano cuando lo necesites.";
+  "No empieces por cientos de propiedades. Contanos qué necesitás y te ayudamos a encontrar opciones que tengan sentido para tu búsqueda. Propiedades en Uruguay, con un asesor a mano.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "encuentra. — Tu próximo hogar empieza con una búsqueda mejor",
+    default: titulo,
     template: "%s · encuentra.",
   },
   description: descripcion,
   openGraph: {
-    title: "encuentra. — Tu próximo hogar empieza con una búsqueda mejor",
+    title: titulo,
     description: descripcion,
     url: siteUrl,
     siteName: "encuentra.",
@@ -27,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "encuentra. — Tu próximo hogar empieza con una búsqueda mejor",
+    title: titulo,
     description: descripcion,
   },
 };

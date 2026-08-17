@@ -61,7 +61,7 @@ export function Header() {
 
           <div className="hidden md:block">
             <Button href="/buscar" variant="primary" size="sm">
-              Comenzar búsqueda
+              Empezar búsqueda
             </Button>
           </div>
 
@@ -109,7 +109,7 @@ export function Header() {
               className="w-full"
               onClick={() => setOpen(false)}
             >
-              Comenzar búsqueda
+              Empezar búsqueda
             </Button>
           </div>
         </div>
