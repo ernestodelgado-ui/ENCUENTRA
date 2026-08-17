@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Sitio compilado que scripts/publicar.mjs deja en la raíz para que GitHub
+    // Pages lo sirva. Es código generado y minificado: no se revisa.
+    "_next/**",
   ]),
 ]);
 
